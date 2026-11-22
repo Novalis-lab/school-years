@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>入学・卒業・入社年 早見表｜生年月日から履歴書の学歴がすぐわかる｜novalis</title>
+<meta name="description" content="生年月日を入れるだけで、幼稚園・小学校・中学校・高校・大学・大学院の入学年と卒業年、入社年を西暦と和暦で一覧表示。浪人・留年・早生まれにも対応。履歴書の学歴欄にそのままコピーできる無料ツール。">
+<link rel="canonical" href="https://novalis-lab.github.io/school-years/">
+<meta name="theme-color" content="#0b0b0d">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="novalis">
+<meta property="og:locale" content="ja_JP">
+<meta property="og:url" content="https://novalis-lab.github.io/school-years/">
+<meta property="og:title" content="入学・卒業・入社年 早見表｜履歴書の学歴がすぐわかる">
+<meta property="og:description" content="生年月日を入れるだけで、小学校から大学・大学院までの入学・卒業年と入社年を西暦・和暦で表示。浪人・留年・早生まれにも対応。">
+<meta property="og:image" content="https://novalis-lab.github.io/ogp.png?v=20261113">
+<meta name="twitter:card" content="summary_large_image">
+<!-- サイトのアイコン（novalis共通のロゴ） -->
+<link rel="icon" href="https://novalis-lab.github.io/icon.svg" type="image/svg+xml">
+<link rel="icon" href="https://novalis-lab.github.io/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="https://novalis-lab.github.io/apple-touch-icon.png">
+<!-- 全ページ共通（フォント：Zen Maru Gothic・Unbounded／角の丸み） -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://novalis-lab.github.io/common.css?v=20261113d">
+<style>
+/* 色はトップページ（novalis）とそろえています。差し色だけ黄色（#f6c453）。
+   フォント（--font・--font-en）と角の丸み（--radius）は common.css で共通管理 */
+:root{
+  --bg:#0b0b0d; --bg-2:#141417; --card:rgba(255,255,255,.025);
+  --ink:#f2f0ea; --sub:#8b8a86; --dim:#5d5c58;
+  --line:rgba(255,255,255,.12); --field:#08080a;
+  --accent:#f6c453; --accent-rgb:246,196,83; --accent-ink:#0b0b0d;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;color-scheme:dark}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;line-height:1.6;overflow-x:hidden}
+::selection{background:var(--accent);color:var(--accent-ink)}
+button,select{touch-action:manipulation}
+
+/* ---------- 背景（縦のガイド線と斜めのライン：トップページと同じ） ---------- */
+.bg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.bg-cols{position:absolute;inset:0;max-width:592px;margin:0 auto;border-left:1px solid rgba(255,255,255,.05);border-right:1px solid rgba(255,255,255,.05)}
+.bg-slash{position:absolute;top:-10%;right:-30%;width:90%;height:120%;
+  background:repeating-linear-gradient(-55deg,rgba(255,255,255,.04) 0 1px,transparent 1px 14px);
+  -webkit-mask-image:linear-gradient(200deg,#000 10%,transparent 55%);mask-image:linear-gradient(200deg,#000 10%,transparent 55%);
+  animation:drift 14s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate(-60px,24px)}}
+
+.wrap{max-width:592px;margin:0 auto;padding:0 16px calc(24px + env(safe-area-inset-bottom))}
+
+/* ---------- 上のバーと見出し ---------- */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0;border-bottom:1px solid var(--line);
+  font-family:var(--font-en);font-size:10px;font-weight:700;letter-spacing:.22em}
+.logo{display:inline-flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:800;font-size:13px;letter-spacing:.18em}
+.logo-mark{width:11px;height:11px;background:var(--accent);transform:rotate(45deg)}
+.logo:hover{color:var(--accent)}
+.topbar a.back{color:var(--sub);text-decoration:none}
+.topbar a.back:hover{color:var(--accent)}
+.kicker{display:flex;align-items:center;gap:12px;margin:30px 0 10px;font-family:var(--font-en);font-size:11px;font-weight:700;letter-spacing:.3em;color:var(--sub)}
+.kicker::before{content:"";width:32px;height:1px;background:var(--accent)}
+h1{font-size:clamp(28px,8.4vw,40px);margin:0;line-height:1.3;letter-spacing:.02em;font-weight:700}
+h1 .u-line{background:linear-gradient(transparent 84%,var(--accent) 84%,var(--accent) 94%,transparent 94%) no-repeat left/0% 100%;
+  animation:underline .9s cubic-bezier(.7,0,.2,1) .4s forwards}
+@keyframes underline{to{background-size:100% 100%}}
+.lead{color:var(--sub);font-size:.92rem;margin:14px 0 0;padding-top:14px;border-top:1px solid var(--line)}
+
+/* ---------- カード（番号つき） ---------- */
+main{counter-reset:card}
+.card{counter-increment:card;margin-top:20px;padding:22px 18px 20px;background:var(--card);border:1px solid var(--line);border-top:1px solid var(--ink);border-radius:var(--radius,8px);
+  animation:rise .45s cubic-bezier(.2,.7,.2,1) both}
+.card:nth-child(2){animation-delay:.06s}.card:nth-child(3){animation-delay:.12s}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}}
+h2{margin:0 0 16px;font-size:20px;font-weight:700;letter-spacing:.02em}
+h2::before{content:counter(card,decimal-leading-zero) " /";display:block;margin-bottom:4px;font-family:var(--font-en);font-size:11px;font-weight:700;letter-spacing:.2em;color:var(--accent)}
+.lbl{display:block;margin:0 0 8px;font-size:13px;font-weight:700;letter-spacing:.12em;color:var(--sub)}
+.lbl small{font-size:12px;font-weight:400;letter-spacing:.02em;margin-left:4px}
+.field+.field{margin-top:22px}
+
+/* ---------- 入力 ---------- */
+.birth{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:8px}
+.sel{position:relative;display:flex;align-items:center}
+.sel select{appearance:none;-webkit-appearance:none;width:100%;height:62px;padding:0 34px 0 14px;border:1px solid rgba(255,255,255,.2);border-radius:var(--radius,8px);
+  background:var(--field);color:var(--ink);font-family:var(--font-en);font-size:20px;font-weight:700;cursor:pointer;transition:border-color .15s,box-shadow .2s}
+.sel .u{position:absolute;right:12px;font-size:15px;font-weight:700;color:var(--sub);pointer-events:none}
+.sel select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 20px 2px rgba(var(--accent-rgb),.35)}
+.sel select option{font-family:var(--font);font-size:16px;background:#141417}
+.birth-info{margin:10px 2px 0;font-size:14px;font-weight:700;color:var(--sub);line-height:1.5}
+.birth-info .tag{display:inline-block;margin-left:6px;padding:0 8px;border-radius:calc(var(--radius,8px)/2);background:rgba(var(--accent-rgb),.16);color:var(--accent);font-size:13px}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.grid button,.seg button{font:inherit;font-size:16px;font-weight:700;min-height:54px;padding:6px 8px;border:1px solid var(--line);border-radius:var(--radius,8px);
+  background:transparent;color:var(--ink);cursor:pointer;line-height:1.3;transition:color .2s,background .2s,border-color .2s}
+.grid button small{display:block;font-size:11.5px;font-weight:400;opacity:.8}
+.grid button:hover,.seg button:hover{border-color:var(--accent)}
+.grid button[aria-pressed="true"],.seg button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.seg{display:grid;grid-template-columns:repeat(var(--n,3),1fr);gap:6px}
+.seg.num button{font-family:var(--font-en);font-size:19px;padding:6px 2px}
+.seg button:disabled{opacity:.35;cursor:not-allowed;border-color:var(--line)}
+.hint{margin:8px 2px 0;font-size:13px;color:var(--sub);line-height:1.5}
+
+/* ---------- 結果 ---------- */
+.result{padding:16px 18px;border-radius:var(--radius,8px);background:var(--accent);color:var(--accent-ink);
+  box-shadow:0 0 20px 2px rgba(var(--accent-rgb),.4),0 0 54px 8px rgba(var(--accent-rgb),.18);animation:glow 2.8s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 28px 4px rgba(var(--accent-rgb),.6),0 0 76px 14px rgba(var(--accent-rgb),.28)}}
+.result .cap{font-size:13px;font-weight:700;opacity:.75}
+.result .big{margin-top:2px;font-size:20px;font-weight:700;line-height:1.35}
+.result .big .n{font-family:var(--font-en);font-size:clamp(26px,7.6vw,34px);font-weight:800;letter-spacing:-.02em;margin:0 1px}
+.result .sub{margin-top:4px;font-size:14px;font-weight:700;opacity:.8}
+
+table.years{width:100%;margin-top:16px;border-collapse:collapse;table-layout:fixed}
+table.years th,table.years td{padding:11px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+table.years thead th{padding:6px 4px;font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--sub);border-bottom:1px solid var(--ink)}
+table.years col.c-name{width:23%}
+table.years td{padding-left:10px}
+table.years tbody th{font-size:16px;font-weight:700;line-height:1.35}
+table.years tbody th small{display:block;margin-top:2px;font-size:11.5px;font-weight:700;color:var(--accent)}
+.ym{display:block;font-size:16px;font-weight:700;white-space:nowrap}
+.ym .n{font-family:var(--font-en);font-size:16px;margin:0 1px}
+.wa{display:block;font-size:12.5px;color:var(--sub);white-space:nowrap}
+.soon{display:inline-block;margin-left:4px;padding:0 5px;border:1px solid var(--line);border-radius:4px;font-size:10.5px;font-weight:700;color:var(--sub);vertical-align:2px}
+table.years tr.job th,table.years tr.job td{border-bottom:0;background:rgba(var(--accent-rgb),.1)}
+table.years tr.job th{color:var(--accent);word-break:keep-all;border-radius:var(--radius,8px) 0 0 var(--radius,8px);padding-left:10px}
+table.years tr.job td{border-radius:0 var(--radius,8px) var(--radius,8px) 0}
+
+.copy-box{margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.btn-copy{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:58px;margin-top:12px;border:0;border-radius:var(--radius,8px);
+  background:var(--accent);color:var(--accent-ink);font:inherit;font-size:17px;font-weight:700;cursor:pointer;
+  box-shadow:0 0 16px 1px rgba(var(--accent-rgb),.35);transition:transform .1s,box-shadow .2s}
+.btn-copy:hover{box-shadow:0 0 24px 4px rgba(var(--accent-rgb),.5)}
+.btn-copy:active{transform:scale(.98)}
+.btn-copy.done{background:var(--ink)}
+.preview{margin:12px 0 0;padding:12px 14px;max-height:220px;overflow:auto;border:1px dashed var(--line);border-radius:var(--radius,8px);
+  font-family:var(--font);font-size:13.5px;line-height:1.7;color:var(--sub);white-space:pre-wrap;word-break:break-all}
+
+.caution{margin:18px 0 0;padding:12px 14px;border-left:3px solid var(--accent);background:rgba(var(--accent-rgb),.07);border-radius:0 var(--radius,8px) var(--radius,8px) 0;
+  font-size:14px;font-weight:700;line-height:1.6}
+
+/* ---------- 計算のしかた ---------- */
+.howto{margin:0;padding:0;list-style:none}
+.howto li{position:relative;padding:10px 0 10px 18px;border-bottom:1px solid var(--line);font-size:15px;line-height:1.7}
+.howto li:last-child{border-bottom:0}
+.howto li::before{content:"";position:absolute;left:2px;top:20px;width:6px;height:6px;background:var(--accent);transform:rotate(45deg)}
+.howto b{color:var(--accent)}
+
+/* 広告スペース */
+.ad-slot{margin:32px 0 0;min-height:100px;display:flex;align-items:center;justify-content:center;border:1px dashed var(--line);border-radius:var(--radius,8px);
+  background:rgba(255,255,255,.015);color:var(--dim);font-size:.75rem;letter-spacing:.1em}
+
+/* ---------- 斜めに流れる帯（トップページと同じ） ---------- */
+.ticker-wrap{position:relative;margin:36px -16px 0;padding:40px 0;overflow:hidden;overflow-x:clip;overflow-y:visible}
+.ticker{margin:0 -5%;padding:11px 0;background:var(--accent);color:var(--accent-ink);transform:rotate(-2.5deg);overflow:hidden;white-space:nowrap;
+  box-shadow:0 0 18px 2px rgba(var(--accent-rgb),.5),0 0 48px 6px rgba(var(--accent-rgb),.22);animation:glow-band 2.8s ease-in-out infinite}
+@keyframes glow-band{50%{box-shadow:0 0 26px 4px rgba(var(--accent-rgb),.7),0 0 70px 12px rgba(var(--accent-rgb),.32)}}
+.ticker-track{display:inline-flex;animation:marquee 26s linear infinite}
+.ticker-track span{display:inline-flex;align-items:center;gap:22px;padding-right:22px;font-family:var(--font-en);font-weight:800;font-size:15px;letter-spacing:.06em}
+.ticker-track span::after{content:"✦";font-size:.8em}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* ---------- フッター ---------- */
+footer{margin-top:32px;padding:16px;border:1px solid var(--line);border-radius:var(--radius,8px);color:var(--sub);font-size:14px;text-align:center}
+.more{position:relative;display:flex;align-items:center;justify-content:space-between;margin:28px auto 0;max-width:340px;min-height:58px;padding:0 22px 0 26px;
+  border-radius:var(--radius,8px);background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:16px;text-decoration:none;overflow:hidden;isolation:isolate;
+  box-shadow:0 0 18px 2px rgba(var(--accent-rgb),.55),0 0 48px 6px rgba(var(--accent-rgb),.28);animation:glow-btn 2.8s ease-in-out infinite}
+@keyframes glow-btn{50%{box-shadow:0 0 26px 4px rgba(var(--accent-rgb),.75),0 0 70px 14px rgba(var(--accent-rgb),.38)}}
+.more::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--ink);transform:scaleX(0);transform-origin:right;transition:transform .4s cubic-bezier(.7,0,.2,1)}
+.more:hover::before{transform:scaleX(1);transform-origin:left}
+.site-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:40px;padding-top:18px;border-top:1px solid var(--line);
+  font-family:var(--font-en);font-size:10px;font-weight:700;letter-spacing:.2em;color:var(--sub)}
+.site-bottom a{color:inherit;text-decoration:none}
+.site-bottom a:hover{color:var(--accent)}
+.footer-logo{margin:8px 0 0;font-family:var(--font-en);font-weight:800;font-size:clamp(44px,13.5vw,96px);line-height:.85;letter-spacing:-.04em;text-align:center;white-space:nowrap;
+  color:transparent;background:repeating-linear-gradient(-55deg,rgba(255,255,255,.2) 0 2px,transparent 2px 7px);-webkit-background-clip:text;background-clip:text;user-select:none}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);padding:10px 18px;border-radius:var(--radius,8px);
+  background:var(--ink);color:var(--bg);font-weight:700;font-size:15px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:20}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media (max-width:380px){
+  .card{padding-left:14px;padding-right:14px}
+  .sel select{font-size:17px;padding-left:10px}
+  .ym,.ym .n{font-size:14.5px}
+  table.years td{padding-left:6px}
+  .wa{font-size:11.5px}
+  table.years tbody th{font-size:15px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important}
+  h1 .u-line{background-size:100% 100%}
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"><span class="bg-cols"></span><span class="bg-slash"></span></div>
+
+<div class="wrap">
+  <div class="topbar">
+    <a class="logo" href="https://novalis-lab.github.io/"><span class="logo-mark" aria-hidden="true"></span>NOVALIS</a>
+    <a class="back" href="https://novalis-lab.github.io/">← ALL TOOLS</a>
+  </div>
+  <header>
+    <p class="kicker">SCHOOL YEARS</p>
+    <h1><span class="u-line">入学・卒業・入社年</span><br>早見表</h1>
+    <p class="lead">生年月日を入れるだけで、幼稚園から大学・大学院までの入学年と卒業年、新卒入社の年を西暦と和暦で一覧にします。履歴書の学歴欄を書くときにどうぞ。</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h2>生年月日と学歴を入力</h2>
+      <div class="field">
+        <span class="lbl" id="lbl-birth">生年月日</span>
+        <div class="birth" role="group" aria-labelledby="lbl-birth">
+          <label class="sel"><select id="by" aria-label="生まれた年"></select><span class="u" aria-hidden="true">年</span></label>
+          <label class="sel"><select id="bm" aria-label="生まれた月"></select><span class="u" aria-hidden="true">月</span></label>
+          <label class="sel"><select id="bd" aria-label="生まれた日"></select><span class="u" aria-hidden="true">日</span></label>
+        </div>
+        <p class="birth-info" id="birth-info" aria-live="polite"></p>
+      </div>
+
+      <div class="field">
+        <span class="lbl" id="lbl-final">最終学歴</span>
+        <div class="grid" id="final" role="group" aria-labelledby="lbl-final">
+          <button type="button" data-v="jhs">中学校</button>
+          <button type="button" data-v="hs">高校</button>
+          <button type="button" data-v="voc">専門学校<small>2年</small></button>
+          <button type="button" data-v="jc">短大<small>2年</small></button>
+          <button type="button" data-v="univ4">大学<small>4年</small></button>
+          <button type="button" data-v="univ6">大学<small>6年：医学部・薬学部など</small></button>
+          <button type="button" data-v="master">大学院 修士<small>大学4年＋2年</small></button>
+          <button type="button" data-v="doctor">大学院 博士<small>大学4年＋修士2年＋3年</small></button>
+        </div>
+      </div>
+
+      <div class="field">
+        <span class="lbl" id="lbl-ronin">浪人した年数<small>高校卒業から進学までの年数</small></span>
+        <div class="seg num" id="ronin" style="--n:6" role="group" aria-labelledby="lbl-ronin"></div>
+        <p class="hint" id="ronin-hint" hidden>最終学歴が中学校・高校のときは使いません。</p>
+      </div>
+
+      <div class="field">
+        <span class="lbl" id="lbl-ryunen">留年した年数<small>最終学歴の卒業が遅れる年数</small></span>
+        <div class="seg num" id="ryunen" style="--n:6" role="group" aria-labelledby="lbl-ryunen"></div>
+      </div>
+
+      <div class="field">
+        <span class="lbl" id="lbl-kinder">幼稚園</span>
+        <div class="seg" id="kinder" role="group" aria-labelledby="lbl-kinder">
+          <button type="button" data-v="3">3年保育</button>
+          <button type="button" data-v="2">2年保育</button>
+          <button type="button" data-v="0">表示しない</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>入学・卒業・新卒入社の年月</h2>
+      <div class="result" id="summary" aria-live="polite"></div>
+      <table class="years">
+        <colgroup><col class="c-name"><col><col></colgroup>
+        <thead><tr><th scope="col">学校名</th><th scope="col">入学</th><th scope="col">卒業</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+
+      <div class="copy-box">
+        <span class="lbl" id="lbl-fmt">コピーする書き方</span>
+        <div class="seg" id="fmt" role="group" aria-labelledby="lbl-fmt">
+          <button type="button" data-v="both">両方</button>
+          <button type="button" data-v="ad">西暦だけ</button>
+          <button type="button" data-v="jp">和暦だけ</button>
+        </div>
+        <button type="button" class="btn-copy" id="copy">結果をまとめてコピー</button>
+        <pre class="preview" id="preview" aria-label="コピーされる内容"></pre>
+        <p class="hint">履歴書の学歴欄は、中学校卒業から書くのが一般的です。いらない行は貼り付けたあとで消してください。</p>
+      </div>
+
+      <p class="caution">浪人・留年・飛び級・海外の学校などで実際と違う場合があります。最終的にはご自身で確認してください。</p>
+    </div>
+
+    <div class="card">
+      <h2>計算のしかた</h2>
+      <ul class="howto">
+        <li>日本の学年は <b>4月2日生まれから翌年4月1日生まれまで</b> が同じ学年です。</li>
+        <li>1月1日〜4月1日生まれ（早生まれ）は、生まれた年＋6年の4月に小学校へ入学します。4月2日〜12月31日生まれは、生まれた年＋7年の4月です。</li>
+        <li><b>4月1日生まれは早生まれ</b> です（法律では誕生日の前日に年をとるため、3月31日に6歳になり、その年の4月に入学します）。</li>
+        <li>入学はその年の4月、卒業は3月です。小学校6年・中学校3年・高校3年で計算しています。</li>
+        <li>浪人した年数は、高校卒業後の学校（専門学校・短大・大学）の入学を遅らせます。留年した年数は、最終学歴の卒業を遅らせます。</li>
+        <li>新卒入社は、最終学歴を卒業した年の4月としています。</li>
+        <li>和暦は月まで見ています。令和は2019年5月1日から、平成は1989年1月8日からなので、2019年3月・4月は平成31年です。</li>
+      </ul>
+    </div>
+  </main>
+
+  <!-- 広告スペース：将来ここに広告のコードを貼り付けます -->
+  <aside class="ad-slot" id="ad-space" aria-label="広告">広告スペース</aside>
+
+  <div class="ticker-wrap" aria-hidden="true">
+    <div class="ticker"><div class="ticker-track">
+      <span>ENTRANCE</span><span>GRADUATION</span><span>FIRST JOB</span><span>NOVALIS</span>
+      <span>ENTRANCE</span><span>GRADUATION</span><span>FIRST JOB</span><span>NOVALIS</span>
+      <span>ENTRANCE</span><span>GRADUATION</span><span>FIRST JOB</span><span>NOVALIS</span>
+      <span>ENTRANCE</span><span>GRADUATION</span><span>FIRST JOB</span><span>NOVALIS</span>
+    </div></div>
+  </div>
+
+  <footer>入力した生年月日はどこにも送信されません（この端末にだけ保存します）。</footer>
+  <a class="more" href="https://novalis-lab.github.io/">ほかのツールを見る<span aria-hidden="true">→</span></a>
+  <div class="site-bottom">
+    <a href="https://novalis-lab.github.io/">NOVALIS TOP</a>
+    <span>© NOVALIS</span>
+  </div>
+  <p class="footer-logo" aria-hidden="true">NOVALIS</p>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ==CALC== 計算の部分（画面に関係しないので、ここだけ取り出して確かめられます） */
+var SchoolYears = (function () {
+  "use strict";
+
+  // 学校の種類（名前・年数）
+  var SCHOOL = {
+    kinder: "幼稚園", elem: "小学校", jhs: "中学校", hs: "高校",
+    voc: "専門学校", jc: "短大", univ: "大学", master: "大学院 修士", doctor: "大学院 博士"
+  };
+  // 最終学歴ごとの「高校のあとに通う学校」と年数
+  var AFTER_HS = {
+    jhs: [], hs: [],
+    voc: [["voc", 2]], jc: [["jc", 2]],
+    univ4: [["univ", 4]], univ6: [["univ", 6]],
+    master: [["univ", 4], ["master", 2]],
+    doctor: [["univ", 4], ["master", 2], ["doctor", 3]]
+  };
+
+  // 早生まれ（1月1日〜4月1日生まれ）か。4月1日生まれも早生まれ側
+  function isEarly(m, d) { return m < 4 || (m === 4 && d === 1); }
+
+  // 小学校に入学する年
+  function elemEntryYear(y, m, d) { return y + (isEarly(m, d) ? 6 : 7); }
+
+  /*
+   * 一覧を作る
+   * o = { y, m, d, final, ronin, ryunen, kinder }
+   * 戻り値：[{ key, name, entry:{y,m}, grad:{y,m}, ronin, ryunen }] と job:{y,m}
+   */
+  function calc(o) {
+    var rows = [];
+    var E = elemEntryYear(o.y, o.m, o.d);
+    function add(key, startY, years) {
+      var r = { key: key, name: SCHOOL[key], entry: { y: startY, m: 4 }, grad: { y: startY + years, m: 3 }, ronin: 0, ryunen: 0 };
+      rows.push(r);
+      return r;
+    }
+    if (o.kinder === 3 || o.kinder === 2) add("kinder", E - o.kinder, o.kinder);
+    add("elem", E, 6);
+    add("jhs", E + 6, 3);
+    if (o.final !== "jhs") add("hs", E + 9, 3);
+
+    var list = AFTER_HS[o.final] || [];
+    var y = E + 12 + (list.length ? o.ronin : 0);
+    list.forEach(function (s, i) {
+      var r = add(s[0], y, s[1]);
+      if (i === 0) r.ronin = o.ronin;
+      y += s[1];
+    });
+
+    // 留年：最終学歴（いちばん最後の学校）の卒業を遅らせる
+    var last = rows[rows.length - 1];
+    last.grad.y += o.ryunen;
+    last.ryunen = o.ryunen;
+
+    return { rows: rows, job: { y: last.grad.y, m: 4 }, early: isEarly(o.m, o.d), elemEntry: E };
+  }
+
+  /* ---------- 和暦（月日まで見て判定） ---------- */
+  var ERAS = [
+    ["令和", 2019, 5, 1],
+    ["平成", 1989, 1, 8],
+    ["昭和", 1926, 12, 25],
+    ["大正", 1912, 7, 30],
+    ["明治", 1868, 1, 25]
+  ];
+  // 「平成31年」のように元号と年（1年は「元年」）
+  function eraYear(y, m, d) {
+    var v = y * 10000 + m * 100 + d;
+    for (var i = 0; i < ERAS.length; i++) {
+      var e = ERAS[i];
+      if (v >= e[1] * 10000 + e[2] * 100 + e[3]) {
+        var n = y - e[1] + 1;
+        return e[0] + (n === 1 ? "元" : n) + "年";
+      }
+    }
+    return "";
+  }
+  // 年月の和暦（入学・卒業・入社は、その月の1日で判定。3月・4月に元号の変わり目はない）
+  function warekiYM(y, m) { var e = eraYear(y, m, 1); return e ? e + m + "月" : ""; }
+
+  return { calc: calc, isEarly: isEarly, elemEntryYear: elemEntryYear, eraYear: eraYear, warekiYM: warekiYM };
+})();
+/* ==/CALC== */
+
+(function () {
+  "use strict";
+  var S = SchoolYears;
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY = "novalis-school-years";
+  var NOW = new Date();
+  var NOW_YM = NOW.getFullYear() * 12 + NOW.getMonth() + 1;
+  var MIN_Y = 1940, MAX_Y = NOW.getFullYear();
+
+  /* ---------- 状態（端末に保存） ---------- */
+  var state = { y: 1995, m: 6, d: 15, final: "univ4", ronin: 0, ryunen: 0, kinder: 3, fmt: "both" };
+  try {
+    var saved = JSON.parse(localStorage.getItem(KEY) || "{}");
+    for (var k in state) if (saved[k] !== undefined && typeof saved[k] === typeof state[k]) state[k] = saved[k];
+  } catch (e) {}
+  if (state.y < MIN_Y || state.y > MAX_Y) state.y = 1995;
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+  /* ---------- 生年月日の選択肢 ---------- */
+  function daysIn(y, m) { return new Date(y, m, 0).getDate(); }
+  var opts = [];
+  for (var y = MAX_Y; y >= MIN_Y; y--) opts.push('<option value="' + y + '">' + y + "</option>");
+  $("by").innerHTML = opts.join("");
+  opts = [];
+  for (var m = 1; m <= 12; m++) opts.push('<option value="' + m + '">' + m + "</option>");
+  $("bm").innerHTML = opts.join("");
+
+  function fillDays() {
+    var n = daysIn(state.y, state.m);
+    if (state.d > n) state.d = n;
+    var html = [];
+    for (var d = 1; d <= n; d++) html.push('<option value="' + d + '">' + d + "</option>");
+    $("bd").innerHTML = html.join("");
+    $("bd").value = String(state.d);
+  }
+  $("by").value = String(state.y);
+  $("bm").value = String(state.m);
+  fillDays();
+
+  ["by", "bm", "bd"].forEach(function (id) {
+    $(id).addEventListener("change", function () {
+      state.y = +$("by").value; state.m = +$("bm").value; state.d = +$("bd").value;
+      fillDays(); save(); render();
+    });
+  });
+
+  /* ---------- ボタンのグループ ---------- */
+  function numButtons(id) {
+    var html = [];
+    for (var i = 0; i <= 5; i++) html.push('<button type="button" data-v="' + i + '">' + i + "</button>");
+    $(id).innerHTML = html.join("");
+  }
+  numButtons("ronin");
+  numButtons("ryunen");
+
+  var groups = [["final", "final", false], ["ronin", "ronin", true], ["ryunen", "ryunen", true], ["kinder", "kinder", true], ["fmt", "fmt", false]];
+  function paint() {
+    groups.forEach(function (g) {
+      [].forEach.call($(g[0]).querySelectorAll("button"), function (b) {
+        b.setAttribute("aria-pressed", String(b.dataset.v === String(state[g[1]])));
+      });
+    });
+    // 中学校・高校で終わるときは、浪人は使わない
+    var noRonin = state.final === "jhs" || state.final === "hs";
+    [].forEach.call($("ronin").querySelectorAll("button"), function (b) { b.disabled = noRonin; });
+    $("ronin-hint").hidden = !noRonin;
+  }
+  groups.forEach(function (g) {
+    $(g[0]).addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b || b.disabled) return;
+      state[g[1]] = g[2] ? +b.dataset.v : b.dataset.v;
+      save(); paint(); render();
+    });
+  });
+
+  /* ---------- 表示 ---------- */
+  var n = function (v) { return '<span class="n">' + v + "</span>"; };
+  function soon(ym) { return ym.y * 12 + ym.m > NOW_YM ? '<span class="soon">予定</span>' : ""; }
+  function cell(ym) {
+    return '<span class="ym">' + n(ym.y) + "年" + n(ym.m) + "月" + soon(ym) + '</span><span class="wa">（' + S.warekiYM(ym.y, ym.m) + "）</span>";
+  }
+  function textYM(ym) {
+    var ad = ym.y + "年" + ym.m + "月", jp = S.warekiYM(ym.y, ym.m);
+    return state.fmt === "ad" ? ad : state.fmt === "jp" ? jp : ad + "（" + jp + "）";
+  }
+  var FINAL_NAME = { jhs: "中学校", hs: "高校", voc: "専門学校", jc: "短大", univ4: "大学（4年）", univ6: "大学（6年）", master: "大学院 修士", doctor: "大学院 博士" };
+
+  var copyText = "";
+  function render() {
+    var r = S.calc({ y: state.y, m: state.m, d: state.d, final: state.final, ronin: state.ronin, ryunen: state.ryunen, kinder: state.kinder });
+
+    // 生年月日の下の説明
+    $("birth-info").innerHTML = state.y + "年" + state.m + "月" + state.d + "日（" + S.eraYear(state.y, state.m, state.d) + state.m + "月" + state.d + "日）生まれ" +
+      (r.early ? '<span class="tag">早生まれ</span>' : "");
+
+    // まとめ
+    var last = r.rows[r.rows.length - 1];
+    var extra = [];
+    if (state.ronin && state.final !== "jhs" && state.final !== "hs") extra.push("浪人" + state.ronin + "年");
+    if (state.ryunen) extra.push("留年" + state.ryunen + "年");
+    $("summary").innerHTML = '<div class="cap">' + FINAL_NAME[state.final] + " 卒業 → 新卒入社" + (extra.length ? "（" + extra.join("・") + "）" : "") + "</div>" +
+      '<div class="big">' + n(r.job.y) + "年" + n(4) + "月 新卒入社</div>" +
+      '<div class="sub">' + S.warekiYM(r.job.y, 4) + "・小学校入学は " + r.elemEntry + "年4月</div>";
+
+    // 表
+    var html = r.rows.map(function (row) {
+      var tags = [];
+      if (row.ronin) tags.push("浪人" + row.ronin + "年");
+      if (row.ryunen) tags.push("留年" + row.ryunen + "年");
+      return '<tr><th scope="row">' + row.name + (tags.length ? "<small>" + tags.join("・") + "</small>" : "") + "</th><td>" + cell(row.entry) + "</td><td>" + cell(row.grad) + "</td></tr>";
+    });
+    html.push('<tr class="job"><th scope="row">新卒<wbr>入社</th><td colspan="2">' + cell(r.job) + "</td></tr>");
+    $("rows").innerHTML = html.join("");
+
+    // コピー用（履歴書の順番：年月の古い順に1行ずつ）
+    var lines = ["学歴（" + state.y + "年" + state.m + "月" + state.d + "日生まれ）"];
+    r.rows.forEach(function (row) {
+      var kinder = row.key === "kinder";
+      lines.push(textYM(row.entry) + "　" + row.name + " " + (kinder ? "入園" : "入学"));
+      lines.push(textYM(row.grad) + "　" + row.name + " " + (kinder ? "卒園" : row.key === "master" || row.key === "doctor" ? "修了" : "卒業"));
+    });
+    lines.push("", "職歴", textYM(r.job) + "　新卒入社");
+    copyText = lines.join("\n");
+    $("preview").textContent = copyText;
+  }
+
+  /* ---------- コピー ---------- */
+  var toastTimer;
+  function toast(msg) {
+    var t = $("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 1800);
+  }
+  function fallbackCopy(text) {
+    return new Promise(function (resolve, reject) {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.setAttribute("readonly", "");
+      ta.style.position = "fixed"; ta.style.top = "-1000px"; ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, text.length);
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      ok ? resolve() : reject();
+    });
+  }
+  function doCopy(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).catch(function () { return fallbackCopy(text); });
+    }
+    return fallbackCopy(text);
+  }
+  $("copy").addEventListener("click", function () {
+    var btn = this;
+    doCopy(copyText).then(function () {
+      btn.classList.add("done"); btn.textContent = "コピーしました";
+      toast("結果をコピーしました");
+      setTimeout(function () { btn.classList.remove("done"); btn.textContent = "結果をまとめてコピー"; }, 1600);
+    }, function () { toast("コピーできませんでした。下の文を長押しで選んでください"); });
+  });
+
+  paint();
+  render();
+})();
+</script>
+</body>
+</html>
