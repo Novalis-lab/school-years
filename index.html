@@ -113,7 +113,7 @@ table.years th,table.years td{padding:11px 4px;border-bottom:1px solid var(--lin
 table.years thead th{padding:6px 4px;font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--sub);border-bottom:1px solid var(--ink)}
 table.years col.c-name{width:23%}
 table.years td{padding-left:10px}
-table.years tbody th{font-size:16px;font-weight:700;line-height:1.35}
+table.years tbody th{font-size:16px;font-weight:700;line-height:1.35;word-break:keep-all}
 table.years tbody th small{display:block;margin-top:2px;font-size:11.5px;font-weight:700;color:var(--accent)}
 .ym{display:block;font-size:16px;font-weight:700;white-space:nowrap}
 .ym .n{font-family:var(--font-en);font-size:16px;margin:0 1px}
@@ -201,7 +201,7 @@ footer{margin-top:32px;padding:16px;border:1px solid var(--line);border-radius:v
   <header>
     <p class="kicker">SCHOOL YEARS</p>
     <h1><span class="u-line">入学・卒業・入社年</span><br>早見表</h1>
-    <p class="lead">生年月日を入れるだけで、幼稚園から大学・大学院までの入学年と卒業年、新卒入社の年を西暦と和暦で一覧にします。履歴書の学歴欄を書くときにどうぞ。</p>
+    <p class="lead">生年月日を入れるだけで、幼稚園（保育園）から大学・大学院までの入学年と卒業年、新卒入社の年を西暦と和暦で一覧にします。履歴書の学歴欄を書くときにどうぞ。</p>
   </header>
 
   <main>
@@ -243,7 +243,7 @@ footer{margin-top:32px;padding:16px;border:1px solid var(--line);border-radius:v
       </div>
 
       <div class="field">
-        <span class="lbl" id="lbl-kinder">幼稚園</span>
+        <span class="lbl" id="lbl-kinder">幼稚園（保育園）</span>
         <div class="seg" id="kinder" role="group" aria-labelledby="lbl-kinder">
           <button type="button" data-v="3">3年保育</button>
           <button type="button" data-v="2">2年保育</button>
@@ -320,7 +320,7 @@ var SchoolYears = (function () {
 
   // 学校の種類（名前・年数）
   var SCHOOL = {
-    kinder: "幼稚園", elem: "小学校", jhs: "中学校", hs: "高校",
+    kinder: "幼稚園（保育園）", elem: "小学校", jhs: "中学校", hs: "高校",
     voc: "専門学校", jc: "短大", univ: "大学", master: "大学院 修士", doctor: "大学院 博士"
   };
   // 最終学歴ごとの「高校のあとに通う学校」と年数
@@ -508,7 +508,7 @@ var SchoolYears = (function () {
       var tags = [];
       if (row.ronin) tags.push("浪人" + row.ronin + "年");
       if (row.ryunen) tags.push("留年" + row.ryunen + "年");
-      return '<tr><th scope="row">' + row.name + (tags.length ? "<small>" + tags.join("・") + "</small>" : "") + "</th><td>" + cell(row.entry) + "</td><td>" + cell(row.grad) + "</td></tr>";
+      return '<tr><th scope="row">' + row.name.replace("（", "<wbr>（") + (tags.length ? "<small>" + tags.join("・") + "</small>" : "") + "</th><td>" + cell(row.entry) + "</td><td>" + cell(row.grad) + "</td></tr>";
     });
     html.push('<tr class="job"><th scope="row">新卒<wbr>入社</th><td colspan="2">' + cell(r.job) + "</td></tr>");
     $("rows").innerHTML = html.join("");
